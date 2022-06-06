@@ -1,4 +1,4 @@
-# kubernetes-labs
+# kubernetes-lab
 build multi-node kubernetes lab environment using vagrant
 
 ## Workflow
