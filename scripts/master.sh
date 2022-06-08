@@ -49,4 +49,7 @@ kubectl apply -f /vagrant/resources/pv.yaml
 # install kustomize
 mkdir -p /usr/local/bin
 cd /usr/local/bin
-curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+
+# install helm version 3
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
