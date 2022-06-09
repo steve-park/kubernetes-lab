@@ -1,12 +1,20 @@
 # kubernetes-lab
 build multi-node kubernetes lab environment using vagrant
 
-## Workflow
-1. deploy Master and Worker Nodes
-2. install docker CE, kubeadm, kubectl and so on
-3. install calico, metric-server, metallb
+## Node Infromation
+* Storage : NFS Server for PersistentVolume
+* Master : Kubernetes Master Node
+* Worker-N : Kubernetes Worker Node
 
-## Directories
-1. scripts : provisioning scripts
-2. resources : provisioning scripts resources
-3. config : kubernetes admin config
+## Directory Information
+* resources : provisioning scripts resources
+* scripts : provisioning scripts
+* config : kubernetes admin config
+
+## Installed Addons
+* [Calico](https://projectcalico.docs.tigera.io/getting-started/kubernetes/)
+* [MetalLB](https://metallb.universe.tf)
+* [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/)
+* [metrics-server](https://github.com/kubernetes-sigs/metrics-server)
+* [Kustomize](https://kustomize.io)
+* [Helm](https://helm.sh)

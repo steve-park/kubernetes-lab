@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv01
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+    path: /data/pv01
+    server: storage
+    readOnly: false
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv02
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+    path: /data/pv02
+    server: storage
+    readOnly: false
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv03
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+    path: /data/pv03
+    server: storage
+    readOnly: false
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv04
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+    path: /data/pv04
+    server: storage
+    readOnly: false
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv05
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+    path: /data/pv05
+    server: storage
+    readOnly: false
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc01
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc02
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

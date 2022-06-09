@@ -3,6 +3,29 @@
 
 Vagrant.configure("2") do |config|
 
+  config.vm.define "storage" do |storage|
+    storage.vm.hostname = "storage"
+    storage.vm.box = "bento/ubuntu-20.04"
+    # master.vm.box_check_update = false
+
+    storage.vm.network "private_network", ip: "192.168.56.210"
+
+    # config.vm.synced_folder "../data", "/vagrant_data"
+
+    storage.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.name = "storage"
+      vb.cpus = 2
+      vb.memory = "1024"
+    end
+
+    storage.vm.provision "shell", path: "./scripts/storage.sh"
+
+    storage.vm.provision "shell", privileged: false, inline: <<-SHELL
+      echo "nfs storage server is ready!!!"
+    SHELL
+  end
+
   config.vm.define "master" do |master|
     master.vm.hostname = "master"
     master.vm.box = "bento/ubuntu-20.04"
@@ -38,7 +61,7 @@ Vagrant.configure("2") do |config|
       worker.vm.hostname = "worker-#{i}"
       worker.vm.box = "bento/ubuntu-20.04"
 
-      worker.vm.network "private_network", ip: "192.168.56.21#{i}"
+      worker.vm.network "private_network", ip: "192.168.56.20#{i}"
 
       worker.vm.provider "virtualbox" do |vb|
         vb.gui = false

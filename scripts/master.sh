@@ -43,9 +43,6 @@ kubectl apply -f /vagrant/resources/metallb.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.2.0/deploy/static/provider/baremetal/deploy.yaml
 kubectl -n ingress-nginx patch service ingress-nginx-controller --type='json' -p='[{"op": "replace", "path": "/spec/type", "value":"LoadBalancer"}]'
 
-# create persistent volume
-kubectl apply -f /vagrant/resources/pv.yaml
-
 # install kustomize
 mkdir -p /usr/local/bin
 cd /usr/local/bin
@@ -53,3 +50,7 @@ curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack
 
 # install helm version 3
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# create persistent volume
+kubectl apply -f /vagrant/resources/pv-nfs.yaml
+kubectl apply -f /vagrant/resources/pv-local.yaml

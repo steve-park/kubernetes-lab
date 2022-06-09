@@ -3,10 +3,11 @@
 # configure name resolution
 echo "" >> /etc/hosts
 echo "# Kubernetes Lab" >> /etc/hosts
+echo "192.168.56.210    storage" >> /etc/hosts
 echo "192.168.56.200    master" >> /etc/hosts
-echo "192.168.56.211    worker-1" >> /etc/hosts
-echo "192.168.56.212    worker-2" >> /etc/hosts
-echo "192.168.56.213    worker-3" >> /etc/hosts
+echo "192.168.56.201    worker-1" >> /etc/hosts
+echo "192.168.56.202    worker-2" >> /etc/hosts
+echo "192.168.56.203    worker-3" >> /etc/hosts
 
 # configure kubernetes requirements
 swapoff -a
@@ -48,7 +49,7 @@ curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.
 echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
 
 apt-get update
-apt-get install -y kubelet kubeadm kubectl bash-completion
+apt-get install -y kubelet kubeadm kubectl bash-completion nfs-common
 apt-mark hold kubelet kubeadm kubectl
 
 systemctl enable kubelet
@@ -60,8 +61,6 @@ echo "source <(kubeadm completion bash)" >> $HOME/.bashrc
 echo 'source /usr/share/bash-completion/bash_completion' >> $HOME/.bashrc
 
 # configure local persistent volume
-mkdir -p /data/pv01
-mkdir -p /data/pv02
-mkdir -p /data/pv03
-mkdir -p /data/pv04
-mkdir -p /data/pv05
+mkdir -p /data/local-pv01
+mkdir -p /data/local-pv02
+mkdir -p /data/local-pv03
