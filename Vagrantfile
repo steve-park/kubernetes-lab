@@ -50,6 +50,8 @@ Vagrant.configure("2") do |config|
       echo "source <(kubectl completion bash)" >> $HOME/.bashrc
       echo "source <(kubeadm completion bash)" >> $HOME/.bashrc
 
+      curl -sS https://webinstall.dev/k9s | bash
+
       echo "kubernetes master node is ready!!!"
     SHELL
   end
