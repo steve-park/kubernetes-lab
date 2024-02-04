@@ -15,12 +15,10 @@ done
 echo "# Kubernetes Lab" >> /etc/exports
 echo "/data 192.168.56.0/255.255.255.0(rw,sync,no_subtree_check)" >> /etc/exports
 
-
 # configure firewall
 # ufw allow from 192.168.56.0/24 to any port nfs
 systemctl stop ufw
 systemctl disable ufw
 
-# start & enable service
 systemctl enable nfs-server
 systemctl restart nfs-server

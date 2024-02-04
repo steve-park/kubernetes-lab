@@ -6,7 +6,7 @@ scripts/worker.sh
 config/admin.conf
 
 # other lab files
-*.yaml
-!/resources/metallb.yaml
-!/resources/pv-local.yaml
-!/resources/pv-nfs.yaml
+# *.yaml
+# !/resources/metallb.yaml
+# !/resources/pv-local.yaml
+# !/resources/pv-nfs.yaml

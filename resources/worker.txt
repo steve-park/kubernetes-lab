@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# troubleshoot containerd error
-cp /etc/containerd/config.toml /etc/containerd/config.toml.bak
-sed 's/disabled_plugins/#disabled_plugins/g' /etc/containerd/config.toml.bak > /etc/containerd/config.toml
-systemctl restart containerd
-
 mkdir -p $HOME/.kube
 cp -i /vagrant/config/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config

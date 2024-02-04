@@ -57,44 +57,52 @@ usermod -aG docker vagrant > /dev/null
 systemctl enable docker.service > /dev/null
 systemctl enable containerd.service > /dev/null
 
+# set cgroup driver
 mv /etc/containerd/config.toml /etc/containerd/config.toml.bak 2> /dev/null
 sh -c "containerd config default" > /etc/containerd/config.toml
 sed -i 's/ SystemdCgroup = false/ SystemdCgroup = true/' /etc/containerd/config.toml
+# troubleshoot containerd error
+cp /etc/containerd/config.toml /etc/containerd/config.toml.2
+sed 's/disabled_plugins/#disabled_plugins/g' /etc/containerd/config.toml.2 > /etc/containerd/config.toml
+rm -f /etc/containerd/config.toml.2 > /dev/null 2> /dev/null
+
 systemctl restart containerd
 
-# install cri-dockerd
-wget -qO- https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.9/cri-dockerd-0.3.9.amd64.tgz | tar xvz
+# # install cri-dockerd
+# # 2024.01.31 it causes 2-cri socket -> containd, cri-dockerd 
+# # if you wish to use cri-docker, run "kubeadm init --cri-socket /var/run/cri-dockerd.sock"
+# wget -qO- https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.9/cri-dockerd-0.3.9.amd64.tgz | tar xvz
 # mv ./cri-dockerd/cri-dockerd /usr/local/bin/
-mv ./cri-dockerd/cri-dockerd /usr/bin/
-rm -rf ./cri-dockerd/ > /dev/null 2> /dev/null
+# # mv ./cri-dockerd/cri-dockerd /usr/bin/
+# rm -rf ./cri-dockerd/ > /dev/null 2> /dev/null
 
-wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.service -O /etc/systemd/system/cri-docker.service
-wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.socket -O /etc/systemd/system/cri-docker.socket
-# mv cri-docker.socket cri-docker.service /etc/systemd/system/ 
+# wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.service -O /etc/systemd/system/cri-docker.service
+# wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.socket -O /etc/systemd/system/cri-docker.socket
+# # mv cri-docker.socket cri-docker.service /etc/systemd/system/ 
 # sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd/system/cri-docker.service
-systemctl daemon-reload
-systemctl enable cri-docker.service
-systemctl enable --now cri-docker.socket
-systemctl status cri-docker.socket
+# systemctl daemon-reload
+# systemctl enable cri-docker.service
+# systemctl enable --now cri-docker.socket
+# systemctl status cri-docker.socket
 
-# # install & configure kubectl
-# apt-get install -y apt-transport-https ca-certificates curl
-# curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-# echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
+# install & configure kubectl
+apt-get install -y apt-transport-https ca-certificates curl gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
 
-# apt-get update
-# apt-get install -y kubelet kubeadm kubectl bash-completion nfs-common
-# apt-mark hold kubelet kubeadm kubectl
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl bash-completion nfs-common
+sudo apt-mark hold kubelet kubeadm kubectl
 
-# systemctl enable kubelet
-# systemctl start kubelet
+systemctl enable kubelet
+systemctl start kubelet
 
-# # configure auto completion
-# echo "source <(kubectl completion bash)" >> $HOME/.bashrc
-# echo "source <(kubeadm completion bash)" >> $HOME/.bashrc
-# echo 'source /usr/share/bash-completion/bash_completion' >> $HOME/.bashrc
+# configure auto completion
+echo "source <(kubectl completion bash)" >> $HOME/.bashrc
+echo "source <(kubeadm completion bash)" >> $HOME/.bashrc
+echo 'source /usr/share/bash-completion/bash_completion' >> $HOME/.bashrc
 
-# # configure local persistent volume
-# mkdir -p /data/local-pv01
-# mkdir -p /data/local-pv02
-# mkdir -p /data/local-pv03
+# configure local persistent volume
+mkdir -p /data/local-pv01
+mkdir -p /data/local-pv02
+mkdir -p /data/local-pv03
