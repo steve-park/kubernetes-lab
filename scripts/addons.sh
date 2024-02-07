@@ -24,4 +24,4 @@ kubectl apply -f /vagrant/resources/csi-driver-nfs.yaml
 
 # install local docker registry
 # storage:/data/registry : static manual persistent volume for local docker registry
-kubectl apply -f /vagrant/resources/registry.yaml
+kubectl apply -f /vagrant/resources/docker-registry.yaml

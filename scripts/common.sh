@@ -55,6 +55,12 @@ NEEDRESTART_MODE=a apt-get update
 NEEDRESTART_MODE=a apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 usermod -aG docker vagrant > /dev/null
+
+echo "{" >> /etc/docker/daemon.json
+echo "    \"insecure-registries\" : [\"docker-registry:5000\", \"docker-registry.kubernetes.lab:5000\"]" >> /etc/docker/daemon.json
+echo "}" >> /etc/docker/daemon.json
+
+systemctl daemon-reload
 systemctl enable docker.service > /dev/null
 systemctl enable containerd.service > /dev/null
 
@@ -102,6 +108,11 @@ systemctl start kubelet
 echo "source <(kubectl completion bash)" >> $HOME/.bashrc
 echo "source <(kubeadm completion bash)" >> $HOME/.bashrc
 echo 'source /usr/share/bash-completion/bash_completion' >> $HOME/.bashrc
+
+# configure local docker-registry self-signed certificate
+cp /vagrant/resources/docker-registry.crt /usr/share/ca-certificates/ > /dev/null
+echo "docker-registry.crt" >> /etc/ca-certificates.conf
+update-ca-certificates
 
 # configure local persistent volume
 # mkdir -p /data/local-pv01

@@ -1,0 +1,179 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name:  kube-registry
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: registry-storage
+  namespace: kube-registry
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /data/registry
+    server: storage
+    readOnly: false
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: registry-storage
+  namespace: kube-registry
+spec:
+  storageClassName: manual
+  volumeName: registry-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-server-config
+  namespace: kube-registry
+data:
+  config.yml: |
+    version: 0.1
+    log:
+      fields:
+        service: registry
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      filesystem:
+        rootdirectory: /var/lib/registry
+      delete:
+        enabled: true
+    http:
+      addr: :5000
+      headers:
+        X-Content-Type-Options: [nosniff]
+        # Access-Control-Allow-Origin: ['http://127.0.0.1:8000']
+        Access-Control-Allow-Origin: ['*']
+        Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS', 'DELETE']
+        Access-Control-Allow-Headers: ['Authorization', 'Accept', 'Cache-Control']
+        Access-Control-Max-Age: [1728000]
+        # Access-Control-Allow-Credentials: [true]
+        Access-Control-Expose-Headers: ['Docker-Content-Digest']
+      tls:
+        certificate: /certs/docker-registry.crt
+        key: /certs/docker-registry.key
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-ui-config
+  namespace: kube-registry
+data:
+  SINGLE_REGISTRY: "true"
+  REGISTRY_TITLE: "Docker Registry UI"
+  DELETE_IMAGES: "true"
+  SHOW_CONTENT_DIGEST: "true"
+  NGINX_PROXY_PASS_URL: "https://docker-registry:5000"
+  SHOW_CATALOG_NB_TAGS: "true"
+  CATALOG_MIN_BRANCHES: "1"
+  CATALOG_MAX_BRANCHES: "1"
+  TAGLIST_PAGE_SIZE: "100"
+  REGISTRY_SECURED: "true"
+  CATALOG_ELEMENTS_LIMIT: "1000"
+---  
+apiVersion: v1
+kind: Secret
+metadata:
+  name: registry-certs
+  namespace: kube-registry
+data:
+  docker-registry.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUQwekNDQXJ1Z0F3SUJBZ0lVS2RZaERjWEVsd0hiR3luYVY5RzJZT0ZBclVVd0RRWUpLb1pJaHZjTkFRRUwKQlFBd2RERUxNQWtHQTFVRUJoTUNTMUl4RXpBUkJnTlZCQWdNQ2xOdmJXVXRVM1JoZEdVeERqQU1CZ05WQkFjTQpCVk5sYjNWc01SY3dGUVlEVlFRS0RBNXJkV0psY201bGRHVnpMbXhoWWpFbk1DVUdBMVVFQXd3ZVpHOWphMlZ5CkxYSmxaMmx6ZEhKNUxtdDFZbVZ5Ym1WMFpYTXViR0ZpTUI0WERUSTBNREl3TnpFMU1UVXpNbG9YRFRNME1ESXcKTkRFMU1UVXpNbG93ZERFTE1Ba0dBMVVFQmhNQ1MxSXhFekFSQmdOVkJBZ01DbE52YldVdFUzUmhkR1V4RGpBTQpCZ05WQkFjTUJWTmxiM1ZzTVJjd0ZRWURWUVFLREE1cmRXSmxjbTVsZEdWekxteGhZakVuTUNVR0ExVUVBd3dlClpHOWphMlZ5TFhKbFoybHpkSEo1TG10MVltVnlibVYwWlhNdWJHRmlNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUYKQUFPQ0FROEFNSUlCQ2dLQ0FRRUFoRXlOcHpOcVJ4RURjM1I0aXNGQ2cydllZS1FaaVhGVHR3UHQwaVVDVDJkWgp1WUJ6WXBXQzVpRDdpYkYzQ3Y4aGdaK281R3R0Y0kwaitiV1k1aExKbjhJSXhnUWFqY0MvLzBvRmxuSlVWQ1d2ClA1ZU5aSXp1WG5zMXBsdXNmc2txYStuV2ZoTStTSzF6UTQzQXZKOHE2MHBINmhnNzEzT2o5WWp2YmFZdDluZm4KVzlWVDdPOGF6NTJZT2FURVZTRkJzWUtmSXQ3ejVkZmd2MjJqbGZDRzIxWVBFZ0xlbWI0V05ienlyL0dRUHhWOQorUUJGeUZQYkJyajFjUmNNYlVTMWcwSzlqSmh4SDhnN3BqbVdPOGZ5SXVKcm0zV2RZdFNtbW5laHpwNjRmRGllCitUM0VzcE9mYnV1WDFxaVNsZXBTUkJFcldsQlIySmVKb3JHbzF1R0pzd0lEQVFBQm8xMHdXekE2QmdOVkhSRUUKTXpBeGdoNWtiMk5yWlhJdGNtVm5hWE4wY25rdWEzVmlaWEp1WlhSbGN5NXNZV0tDRDJSdlkydGxjaTF5WldkcApjM1J5ZVRBZEJnTlZIUTRFRmdRVTlSY2ZwSWlLaURnZmYwVTdYTmdkbTFINnFOTXdEUVlKS29aSWh2Y05BUUVMCkJRQURnZ0VCQUZzSUNIa1lSeGpjUlZkQ1MwbGw1RXJEMFhjbzR2QUpxd04vZ1g3T1l5TnV6K2phTHRva2d2cHAKK1VJWUVrcEFDNHRuTDlFdUV3dUdvNDc1anZDR2krNmhpaDk1amNyZjM4b2NvdUdsOEVzQURrYjVlcTl3SHhseQpHTFVLd3B2RjFkbFZwM2wvZlpzS2M1N2pKaHZDd2JRdEt4YWFhdHgrL0Q3eHlQV3hMREpmZENGQUZEK1RHY3JvCjVRTWdiSi9DbDlnVVEvdll0VEZrMnJCbmdwMGYxMzVtalE3U1BTQ0Z2aG0zUThZWGVCdXA5SjdydXg3ZlRMWTkKcHo0UDR5VmJWV3BIRUlMc05KSjFKZ1c1cWgyQWRJNjNIWlNQalVUOGRXOFpFWEpUQnExU1VxaDVuQnRPU1dSSApTVFpxa21rczlHYm9qVURrRFFzbUdIQ25LY3BNNHJVPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  docker-registry.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2UUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktjd2dnU2pBZ0VBQW9JQkFRQ0VUSTJuTTJwSEVRTnoKZEhpS3dVS0RhOWhncEJtSmNWTzNBKzNTSlFKUFoxbTVnSE5pbFlMbUlQdUpzWGNLL3lHQm42amthMjF3alNQNQp0WmptRXNtZndnakdCQnFOd0wvL1NnV1djbFJVSmE4L2w0MWtqTzVlZXpXbVc2eCt5U3ByNmRaK0V6NUlyWE5ECmpjQzhueXJyU2tmcUdEdlhjNlAxaU85dHBpMzJkK2RiMVZQczd4clBuWmc1cE1SVklVR3hncDhpM3ZQbDErQy8KYmFPVjhJYmJWZzhTQXQ2WnZoWTF2UEt2OFpBL0ZYMzVBRVhJVTlzR3VQVnhGd3h0UkxXRFFyMk1tSEVmeUR1bQpPWlk3eC9JaTRtdWJkWjFpMUthYWQ2SE9ucmg4T0o3NVBjU3lrNTl1NjVmV3FKS1Y2bEpFRVN0YVVGSFlsNG1pCnNhalc0WW16QWdNQkFBRUNnZ0VBQmFLYklBV1ZIOHpPT0ZNOE5URFJLL2JpZ3c5S1ZTdmlGSGdTMzdJYTNKWDYKNE9kalFzNDZncUhpQlBYdHE2YTlYeCtWV3BGbTJuWHdrOWpUMSt6eDhKK2JydytLc0FJSFM1RDBGdm5zdEo3YwpUWm1mZUtwMkZza3B1bG5LU2FZNDY5ck1lNWRIUG1KQStCNG9HUUN3bTlBUXF4eDRKQSsxYXFaNENGUWRQaFBDCnRmeGZKY0FPYlB2Z3daMU42eVN4L3AxakExR05BUE9ab0kxUHBZMitEeHFCOEgzQ0xwTUpERFZQMnlSdmgxZUsKeGg3TURRUGhFVEEwYnRmYWI2R1NUb3JYQlpQMVd3Wk5RLzExaEh3eTkyTnBLa2pZNStmV2xjNzl1Rlo2cTB2UAprQlNaSUllWExRQ2lOTktCK1BzMmpLcEhmbEgrVkl0dGdSUGg4czRmdVFLQmdRQzR4elh1c0x4bXZHSWVURWlpCk1PVHBvUnArU3VUVWFSVkkzZTNOTTlXTUxrc1NNckwvZzd0bDBUYk8wTWJuNkhRWmJCMWk3bjg2RElrQS9JajkKak5oVVMySVcvdndYVE5VVURVRGQ2ay9zYWNvZUJFSjNHd1pENWVyQ2pDOTFIOTlaYzB1empKRkIrUFlNSE5nbgo1QitZdmhkdDFWOWdnQjZUanY4OStJQmhhUUtCZ1FDM1N3VXRqczZ1U3p6SXRFUkpXZCsxRW9iaVgxU25jVlZGCmQ5dk5JaHFsM0hNR2dHeEk0cUo2SytobDgyZzVIa1VmL0FkUzd4enVwWnZLaW5KV1JaOE50V2t5UnJrYmEwSzYKem1xSEU2TnpObyt6WGhDeU03N3ZES0M1V3JmOGNpMUQ0ZW16M3VxWUdVNkhQSG9YN2hKN2ltU245WU0vVnNDVQpkRklUcnhrU3V3S0JnQW1xK3FwcmV1QVJPVDBHbHNKTnRweDJ2bkVmTUF2aEY2a0JXNkRoOW1sb1BxdE1GY3VDCnMvcG0wT3hQUmlqNkk2RDA1REM1ODlRd3RiWmtnREpyL1NHajlCVHA4SHl6bTI1Nkp3dTFaOHNoMmQ1cU1LUVUKdU9ZeWtHN3ZjTWc3QzYrZGRiZUdRazltWEZGVDdRZGhTem50c0VJaDZPU2VyM3JlLzRIWmo3WUpBb0dBTmtleApNTnlwdUZQdm5FQkdPTEswM1JxdmR6cGtCM0k0bm1ud1hiOUx4UEtUM2NrS1NFdFZjbml1U2dMYlNvNzhTWXlKClhyWVJDMXRmMTR0SWNPUU5SaklEQlRDTWdPSXkwTDl3TExCVUp6cHhNOTBYZEs1K1RLeWdyRU9CV1BFM0ZuTkEKa2xQaGhVbDVSL05ROU9VNzgvbjM5UVZ2Nk1INEpmNk1qK2U2dFNFQ2dZRUFyeW5naUZteDdCS29MTFY1QkFrYQpKVUV5L1Y5NTRTZ1owaW4xZ2NKaEo3TWk3aFk0dkE1RkRjZkxmcE1JN0V3M3k2RGdvbGEyL2JHcm5GTzMwNUlZCnZBWnVOcWVQYjFNa1B0Q3M3ajNsS0ExaWZlVFZWcW1jWVBnU3dqNHZ2ZWxaTFh2azVONVNwN3Q3RXE2aUxiS1EKU1FYdDgvMzF1dmpLZ2VEdnpBWWJjbFU9Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
+type: Opaque
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docker-registry
+  namespace: kube-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docker-registry
+  template:
+    metadata:
+      labels:
+        app: docker-registry
+    spec:
+      containers:
+      - name: registry-server
+        image: registry:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+          - name: registry-config
+            mountPath: /etc/docker/registry/config.yml
+            subPath: config.yml
+            readOnly: true 
+          - name: registry-certs
+            mountPath: /certs
+            readOnly: true
+          - name:  registry-storage
+            mountPath:  /var/lib/registry
+      - name: registry-ui
+        image: joxit/docker-registry-ui:main
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: "200Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+        envFrom:
+          - configMapRef:
+              name: registry-ui-config
+      volumes:
+        - name: registry-config
+          configMap:
+            name: registry-server-config
+        - name: registry-certs
+          secret:
+            secretName: registry-certs
+        - name:  registry-storage
+          persistentVolumeClaim:
+            claimName: registry-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry
+  namespace: kube-registry
+spec:
+  selector:
+    app: docker-registry
+  type: LoadBalancer
+  ports:
+  - name: registry-server
+    protocol: TCP
+    port: 5000
+    targetPort: 5000
+  - name: registry-ui
+    protocol: TCP
+    port: 80
+    targetPort: 80

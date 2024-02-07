@@ -2,14 +2,15 @@
 
 # install nfs-server
 apt-get update
-apt-get install -y nfs-kernel-server nfs-common
+apt-get install -y nfs-kernel-server nfs-common acl
 
 # configure nfs directory share
 for name in static persistent transient registry
 do
     mkdir -p /data/$name
-    # chown -R nobody:nogroup /data/$name
-    chmod -R 777 /data/$name
+    chmod 777 /data/$name
+    # chown nobody:nogroup /data/$name    
+    # setfacl -PRdm u::rwx,g::rwx,o::rwx /data/$name
 done
 
 echo "# Kubernetes Lab" >> /etc/exports
