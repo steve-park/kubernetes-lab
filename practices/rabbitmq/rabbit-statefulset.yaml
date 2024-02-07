@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: rabbitmq
+  namespace: rabbits
 spec:
   serviceName: rabbitmq
   replicas: 3
@@ -16,7 +17,7 @@ spec:
       serviceAccountName: rabbitmq
       initContainers:
       - name: config
-        image: busybox
+        image: docker-registry:5000/busybox
         command: ['/bin/sh', '-c', 'cp /tmp/config/rabbitmq.conf /config/rabbitmq.conf && ls -l /config/ && cp /tmp/config/enabled_plugins /etc/rabbitmq/enabled_plugins']
         volumeMounts:
         - name: config
@@ -28,7 +29,7 @@ spec:
           mountPath: /etc/rabbitmq/
       containers:
       - name: rabbitmq
-        image: rabbitmq:3.9-management
+        image: docker-registry:5000/rabbitmq:3.9-management
         ports:
         - containerPort: 4369
           name: discovery
@@ -79,7 +80,7 @@ spec:
       name: data
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "manual"
+      storageClassName: "nfs-persistent"
       resources:
         requests:
           storage: 50Mi
@@ -88,6 +89,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: rabbitmq
+  namespace: rabbits
 spec:
   clusterIP: None
   selector:
