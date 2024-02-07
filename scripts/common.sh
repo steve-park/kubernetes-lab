@@ -8,6 +8,7 @@ echo "192.168.56.201    worker-1" >> /etc/hosts
 echo "192.168.56.202    worker-2" >> /etc/hosts
 echo "192.168.56.203    worker-3" >> /etc/hosts
 echo "192.168.56.210    storage" >> /etc/hosts
+echo "192.168.56.102    docker-registry docker-registry.kubernetes.lab" >> /etc/hosts
 
 # configure kubernetes requirements
 swapoff -a
@@ -103,6 +104,6 @@ echo "source <(kubeadm completion bash)" >> $HOME/.bashrc
 echo 'source /usr/share/bash-completion/bash_completion' >> $HOME/.bashrc
 
 # configure local persistent volume
-mkdir -p /data/local-pv01
-mkdir -p /data/local-pv02
-mkdir -p /data/local-pv03
+# mkdir -p /data/local-pv01
+# mkdir -p /data/local-pv02
+# mkdir -p /data/local-pv03

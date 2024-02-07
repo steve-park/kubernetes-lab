@@ -18,3 +18,5 @@ build multi-node kubernetes lab environment using vagrant
 * [metrics-server](https://github.com/kubernetes-sigs/metrics-server)
 * [Kustomize](https://kustomize.io)
 * [Helm](https://helm.sh)
+* [k9s](https://k9scli.io)
+* [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs)
