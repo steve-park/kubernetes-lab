@@ -1,0 +1,48 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+    name: rabbitmq-node
+spec:
+  service:
+    type: NodePort
+  replicas: 3
+  persistence:
+    storageClassName: "gp2"
+    storage: 2Gi
+  resources:
+    limits:
+      cpu: "0.25"
+      memory: 2Gi
+    requests:
+      cpu: "0.25"
+      memory: 2Gi
+  rabbitmq:
+    envConfig: |
+      RABBITMQ_DEFAULT_USER=user
+      RABBITMQ_DEFAULT_PASS=user1234
+      RABBITMQ_NODE_PORT=5672
+  # override:
+  #   statefulSet:
+  #     spec:
+  #       template:
+  #         spec:
+  #           containers:
+  #           - name: rabbitmq
+  #             securityContext:
+  #               privileged: false
+  #               allowPrivilegeEscalation: false
+  #           initContainers:
+  #           - name: setup-container
+  #             securityContext:
+  #               privileged: false
+  #               allowPrivilegeEscalation: false
+	# 	override:
+	# 	    statefulSet:
+	# 	      spec:
+	# 	        template:
+	# 	          spec:
+	# 	            containers:
+	# 	              - name: rabbitmq
+	# 	            securityContext:
+	# 	              fsGroup: 1000
+	# 	              runAsUser: 1000
