@@ -39,5 +39,5 @@ cd ~
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 # create persistent volume
-kubectl apply -f /vagrant/resources/pv-nfs.yaml
-kubectl apply -f /vagrant/resources/pv-local.yaml
+# kubectl apply -f /vagrant/resources/pv-nfs.yaml
+# kubectl apply -f /vagrant/resources/pv-local.yaml
