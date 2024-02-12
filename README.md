@@ -2,7 +2,6 @@
 build multi-node kubernetes lab environment using vagrant
 
 ## Node Infromation
-* Storage : NFS Server for PersistentVolume
 * Master : Kubernetes Master Node
 * Worker-N : Kubernetes Worker Node
 
@@ -16,7 +15,7 @@ build multi-node kubernetes lab environment using vagrant
 * [MetalLB](https://metallb.universe.tf)
 * [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/)
 * [metrics-server](https://github.com/kubernetes-sigs/metrics-server)
+* [longhorn](https://longhorn.io)
 * [Kustomize](https://kustomize.io)
 * [Helm](https://helm.sh)
 * [k9s](https://k9scli.io)
-* [csi-driver-nfs](https://github.com/kubernetes-csi/csi-driver-nfs)

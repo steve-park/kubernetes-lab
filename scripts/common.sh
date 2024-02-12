@@ -7,8 +7,7 @@ echo "192.168.56.200    master" >> /etc/hosts
 echo "192.168.56.201    worker-1" >> /etc/hosts
 echo "192.168.56.202    worker-2" >> /etc/hosts
 echo "192.168.56.203    worker-3" >> /etc/hosts
-echo "192.168.56.210    storage" >> /etc/hosts
-echo "192.168.56.102    docker-registry docker-registry.kubernetes.lab" >> /etc/hosts
+echo "192.168.56.103    docker-registry docker-registry.kubernetes.lab" >> /etc/hosts
 
 # configure kubernetes requirements
 swapoff -a
@@ -98,7 +97,7 @@ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearm
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
 
 sudo apt-get update
-sudo apt-get install -y kubelet kubeadm kubectl bash-completion nfs-common
+sudo apt-get install -y kubelet kubeadm kubectl bash-completion open-iscsi nfs-common
 sudo apt-mark hold kubelet kubeadm kubectl
 
 systemctl enable kubelet
@@ -114,7 +113,13 @@ cp /vagrant/resources/docker-registry.crt /usr/share/ca-certificates/ > /dev/nul
 echo "docker-registry.crt" >> /etc/ca-certificates.conf
 update-ca-certificates
 
-# configure local persistent volume
-# mkdir -p /data/local-pv01
-# mkdir -p /data/local-pv02
-# mkdir -p /data/local-pv03
+# install & configure longhorn prerequisite
+modprobe iscsi_tcp > /dev/null 2> /dev/null
+
+echo "" >> /etc/multipath.conf
+echo "blacklist {" >> /etc/multipath.conf
+echo "  devnode \"^sd[a-z0-9]+\"" >> /etc/multipath.conf
+echo "}" >> /etc/multipath.conf
+
+systemctl stop multipathd.service
+systemctl disable multipathd.service
